@@ -1,0 +1,52 @@
+
+
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QGestureRecognizer
+
+from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromMouseRecognizer
+
+
+class GestureAble(object):
+  '''
+  Mixin class for QMainWindow
+  '''
+  
+  def subscribeGestures(self):
+    '''
+    Boilerplate to subscribe to Qt gestures.
+    '''
+    # Tell Qt to deliver touch events instead of default, which is translating to mouse events (friendly)
+    self.setAttribute(Qt.WA_AcceptTouchEvents)
+    
+    # !!! Obscure: set the attribute on viewport()
+    self.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
+    
+    self.grabGestureSet()
+
+
+  def grabGestureSet(self):
+    '''
+    Defines gestures relevant to this app.
+    
+    !!! For simulation, grab same gesture type as simulator is emitting (pinch)
+    '''
+    print("grabGestureSet")
+    #self.grabGesture(Qt.PinchGesture)
+    self.grabCustomGestureSet()
+    
+    
+  def grabCustomGestureSet(self): 
+    # Create instance of gesture recognizer
+    myRecognizer = PinchFromMouseRecognizer()
+    
+    # Call class method to let app take ownership of recognizer
+    #print "registering"
+    gestureTypeID = QGestureRecognizer.registerRecognizer(myRecognizer)
+    '''
+    ID is Qt::CustomGesture 0x100 plus 1, i.e. 257
+    '''
+    print("gesture type id is ", gestureTypeID)
+    
+    '''
+    !!! Note that we don't keep a reference to recognizer, since now Qt owns it ???
+    '''
