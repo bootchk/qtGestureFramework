@@ -1,6 +1,6 @@
 
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QGestureRecognizer
 
 from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromMouseRecognizer
@@ -8,8 +8,9 @@ from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromM
 
 class GestureAble(object):
   '''
-  Mixin class for QMainWindow
+  Mixin class for QGraphicsView
   '''
+  # grabbedGestureIDSet = []
   
   def subscribeGestures(self):
     '''
@@ -24,6 +25,16 @@ class GestureAble(object):
     self.grabGestureSet()
 
 
+  def unsubscribeGestures(self):
+    '''
+    Not sure this is necessary.
+    It might prevent crash on exit.
+    '''
+    print("unsubscribeGestures")
+    QGestureRecognizer.unregisterRecognizer(257)
+    
+    
+
   def grabGestureSet(self):
     '''
     Defines gestures relevant to this app.
@@ -31,22 +42,32 @@ class GestureAble(object):
     !!! For simulation, grab same gesture type as simulator is emitting (pinch)
     '''
     print("grabGestureSet")
-    #self.grabGesture(Qt.PinchGesture)
-    self.grabCustomGestureSet()
+    self.grabCustomGesture(PinchFromMouseRecognizer)
     
     
-  def grabCustomGestureSet(self): 
-    # Create instance of gesture recognizer
-    myRecognizer = PinchFromMouseRecognizer()
+  def grabCustomGesture(self, recognizerFactory):
+    '''
+    Create instance of gesture recognizer,
+    register it,
+    and subscribe self to custom gesture of recognizer.
+    '''
+    myRecognizer = recognizerFactory()
     
     # Call class method to let app take ownership of recognizer
-    #print "registering"
     gestureTypeID = QGestureRecognizer.registerRecognizer(myRecognizer)
     '''
-    ID is Qt::CustomGesture 0x100 plus 1, i.e. 257
+    ID is Qt::CustomGesture 0x100 plus 1, e.g. 257
     '''
-    print("gesture type id is ", gestureTypeID)
+    #print("gesture type id is ", gestureTypeID)
+    
+    print("{} grabbing gesture type {}".format(self, gestureTypeID))
+    self.grabGesture(gestureTypeID)
     
     '''
     !!! Note that we don't keep a reference to recognizer, since now Qt owns it ???
     '''
+
+
+  def processGestures(self, event):
+    if event.type() == QEvent.Gesture:
+      pass

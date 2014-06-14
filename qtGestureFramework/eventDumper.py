@@ -1,3 +1,4 @@
+
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QGestureRecognizer
 
@@ -5,12 +6,18 @@ from PyQt5.QtWidgets import QGestureRecognizer
 class EventDumper(object):
   '''
   Print events and class that received them
+  
+  Know maps from enum value to keys
   '''
   def __init__(self):
     self.eventTypeMap = self._buildEnumMap(QEvent, QEvent.Type) # _buildEventTypeMap()
     self.gestureTypeMap = self._buildEnumMap(Qt, Qt.GestureType)
     self.gestureStateMap = self._buildEnumMap(Qt, Qt.GestureState)
-    #self.gestureTypeMap = self._buildGestureTypeMap()
+    self.gestureRecognizerResultFlagMap = self._buildEnumMap(QGestureRecognizer, QGestureRecognizer.ResultFlag)
+    
+    # Add item for one custom gesture
+    self.gestureTypeMap[257] = 'PinchFromMouseGesture'
+
     
   def _buildEnumMap(self, className, typeName):
     ''' 
@@ -22,7 +29,8 @@ class EventDumper(object):
       if isinstance(value, typeName):
         #print(key, value)
         enumMap[value] = key
-    print(enumMap)
+    # print(enumMap)
+    assert len(enumMap)>0
     return enumMap
        
   def dump(self, event, receiverName):
@@ -37,7 +45,7 @@ class EventDumper(object):
   
   def dumpGestureEvent(self, event):
     '''
-    Special for QGestureEvent, but detailed.
+    Special for QGestureEvent, detailed.
     '''
     assert event.type() == QEvent.Gesture
     print('Gesture event {}'.format(event.isAccepted()))
@@ -47,7 +55,17 @@ class EventDumper(object):
         print("   Active gesture {} {}".format(self.gestureTypeMap[gesture.gestureType()],
                                       self.gestureStateMap[gesture.state()]))
     else:
-      print("    active gestures in event")
+      print("   No active gestures in event")
+    
+    '''
+    !!! Canceled gestures are separate, are not active.
+    '''
+    canceledGestures = event.canceledGestures()
+    if len(canceledGestures) > 0:
+      for gesture in canceledGestures:
+        print("   Canceled gesture {} {}".format(self.gestureTypeMap[gesture.gestureType()],
+                                      self.gestureStateMap[gesture.state()]))
+      
 
 #global
 eventDumper = EventDumper()

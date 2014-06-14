@@ -15,12 +15,11 @@ from qtGestureFramework.eventDumper import eventDumper  # singleton
 
 
 class DiagramScene(QGraphicsScene):
-  def __init__(self, *args):
-    QGraphicsScene.__init__(self, *args)
-    text = QGraphicsTextItem("My events on item not triggered if mouse button pressed")
-    text.setTextInteractionFlags(Qt.TextEditorInteraction)
+  def __init__(self, parent):
+    QGraphicsScene.__init__(self, parent)
+    text = QGraphicsTextItem("Simulate pinch with mouse button pressed")
+    #text.setTextInteractionFlags(Qt.TextEditorInteraction)
     self.addItem(text)
-    
   
   """
   def event(self, event):
@@ -30,8 +29,8 @@ class DiagramScene(QGraphicsScene):
     
     
 class DiagramView(GestureAble, QGraphicsView):
-  def __init__(self, *args):
-    super().__init__(*args)
+  def __init__(self, scene, parent):
+    super().__init__(scene, parent)
     self.setAttribute(Qt.WA_AcceptTouchEvents)
     # !!! Obscure: set the attribute on viewport()
     self.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
@@ -39,24 +38,36 @@ class DiagramView(GestureAble, QGraphicsView):
     #self.grabGesture(Qt.PanGesture)
     # self.startGestureSimulation()
   
+  def event(self, event):
+    eventDumper.dump(event, "View")
+    
+    self.processGestures(event)
+    
+    return super().event(event)
   
   def viewportEvent(self, event):
-    eventDumper.dump(event, "View")
+    '''
+    viewport is area inside scrollbars?
+    '''
+    eventDumper.dump(event, "Viewport")
     return super().viewportEvent(event)
   
   
-
+    
 
 
 class MainWindow(QMainWindow):
     def __init__(self, *args):
         QMainWindow.__init__(self, *args)
-        self.scene = DiagramScene()
-        self.view = DiagramView(self.scene)
-        #self.view.setRenderHint(QPainter.Antialiasing)
+        scene = DiagramScene(parent=self) # !!! parent is important for clean exit
+        self.view = DiagramView(scene=scene, parent=self)
         self.setCentralWidget(self.view)
-        #self.subscribeGestures()
         self.setWindowTitle("Gesture example");
+        
+        '''
+        MainWindow does not subscribe gestures,
+        since then user could make gestures in other children such as menubar and statusbar
+        '''
       
     def event(self, event):
       #eventDumper.dump(event, "Window")
@@ -64,27 +75,22 @@ class MainWindow(QMainWindow):
       eventType = event.type()
       
       # dump touch events
-      if eventType in (QEvent.TouchBegin, QEvent.TouchUpdate, QEvent.TouchEnd, QEvent.TouchCancel):
+      if eventType in (QEvent.Gesture, QEvent.TouchBegin, QEvent.TouchUpdate, QEvent.TouchEnd, QEvent.TouchCancel):
         eventDumper.dump(event, "Window.event")
-        event.accept()
-      
-      # dump gesture events
-      if eventType in (QEvent.Gesture, ):
-        eventDumper.dumpGestureEvent(event)
-        event.accept()
         
-      
+      '''
+      Don't accept() without calling super, since then they do not propagate to children?
+      '''
       # TODO accept?  super ? eventFilter ?
+      #return super().event(self, event)
       
-      #return QMainWindow.event(self, event)
       return True # meaning: did process
     
          
     def touchEvent(self, event):
       " Reimplemented to dump "
       eventDumper.dump(event, "Window.touchEvent")
-         
-
+      super().touchEvent(event)
       
 
 def main(args):
@@ -95,22 +101,14 @@ def main(args):
     
     mainWindow = MainWindow()
     mainWindow.setGeometry(100, 100, 500, 400)
+    app.setActiveWindow(mainWindow)  # necessary for clean exit?
     mainWindow.show()
-    
-    
-    """
-    ''' Without MainWindow. '''
-    scene = DiagramScene()
-    view = DiagramView(scene)
-    view.showMaximized()
-    view.fitInView(scene.sceneRect().adjusted(-20, -20, 20, 20), Qt.KeepAspectRatio)
-    """
     
     # Qt Main loop
     sys.exit(app.exec_())
 
 """
-Linux stuff
+Linux stuff for using certain touch devices
 
 def loadEvdevPlugin():
   #plugin = QPluginLoader("libqevdevtouchplugin.so")
