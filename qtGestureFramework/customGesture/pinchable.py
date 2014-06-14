@@ -4,16 +4,17 @@ from PyQt5.QtCore import QPointF, QPoint
 
 class Pinchable(object):
   '''
-  Mixin methods to emulate a two-finger QPinchGesture
+  Mixin methods for a custom gesture, to emulate a two-finger QPinchGesture.
+  In other words, gesture is pinchable, i.e. has API of QPinchGesture.
   
-  The names match QPinchGesture.
+  Names match QPinchGesture.
   
   A subset, only the totals for:
   -rotation, 
   -center,
   -scale factor.
   
-  The recognizer also may be implementing a further subset (i.e. rotation always 0)
+  The recognizer also may be implementing a further subset or degradation (i.e. rotation always 0)
   '''
   
   '''

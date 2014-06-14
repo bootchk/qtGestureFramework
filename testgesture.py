@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 
 '''
-Test custom gesture.
+Test qtGestureFramework
 '''
 
 import sys
@@ -10,7 +10,9 @@ from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphicsTextItem, QGraphicsView
 
 from qtGestureFramework.gestureAble import GestureAble
+from qtGestureFramework.pinchGestureAble import PinchGestureAble
 from qtGestureFramework.eventDumper import eventDumper  # singleton
+from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromMouseRecognizer
 
 
 
@@ -28,22 +30,37 @@ class DiagramScene(QGraphicsScene):
   """
     
     
-class DiagramView(GestureAble, QGraphicsView):
+class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
   def __init__(self, scene, parent):
     super().__init__(scene, parent)
-    self.setAttribute(Qt.WA_AcceptTouchEvents)
-    # !!! Obscure: set the attribute on viewport()
-    self.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
-    self.subscribeGestures()
-    #self.grabGesture(Qt.PanGesture)
-    # self.startGestureSimulation()
+    
+    '''
+    Here we subscribe to both the builtin pinch gesture and a custom pinch gesture simulated with mouse.
+    If you don't have a touch device, you won't get touch events and thus not the built-in one.
+    If you do have a touch device, this might not work,
+    since touch events not handled are translated by Qt into mouse events,
+    and you might have multiple pinch gestures active,
+    calling the same handlers.
+    '''
+    self.subscribeBuiltinGesture(Qt.PinchGesture, startHandler=self.handlePinchStart,
+                                updateHandler=self.handlePinchUpdate,
+                                finishHandler=self.handlePinchFinish,
+                                cancelHandler=self.handlePinchCancel)
+    
+    self.subscribeCustomGesture(PinchFromMouseRecognizer,
+                                startHandler=self.handlePinchStart,
+                                updateHandler=self.handlePinchUpdate,
+                                finishHandler=self.handlePinchFinish,
+                                cancelHandler=self.handlePinchCancel)
+
   
   def event(self, event):
     eventDumper.dump(event, "View")
     
-    self.processGestures(event)
+    self.dispatchGestureEventByState(event)
     
     return super().event(event)
+  
   
   def viewportEvent(self, event):
     '''
