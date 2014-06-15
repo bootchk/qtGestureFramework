@@ -94,14 +94,9 @@ class MainWindow(QMainWindow):
       # dump touch events
       if eventType in (QEvent.Gesture, QEvent.TouchBegin, QEvent.TouchUpdate, QEvent.TouchEnd, QEvent.TouchCancel):
         eventDumper.dump(event, "Window.event")
-        
-      '''
-      Don't accept() without calling super, since then they do not propagate to children?
-      '''
-      # TODO accept?  super ? eventFilter ?
-      #return super().event(self, event)
       
-      return True # meaning: did process
+      # Call super, so propagate to children
+      return super().event(event)
     
          
     def touchEvent(self, event):

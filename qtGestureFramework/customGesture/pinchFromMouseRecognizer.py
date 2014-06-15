@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QGestureRecognizer
 
 from qtGestureFramework.customGesture.pinchFromMouseGesture import PinchFromMouseGesture
@@ -8,7 +8,10 @@ from qtGestureFramework.eventDumper import eventDumper
 
 
 class PinchFromMouseRecognizer(QGestureRecognizer):
-  
+  '''
+  Simulates a QPinchGesture, but reads mouse events.
+  In a primitive way, see below.
+  '''
   
   def __init__(self):
     print("Init MyGestureRecognizer")
@@ -20,10 +23,13 @@ class PinchFromMouseRecognizer(QGestureRecognizer):
   def recognize(self, gesture, watched, event):
     '''
     Reimplement ( Qt requires )
+    
+    Note we use middle mouse button for gestures,
+    and other mouse buttons can still be used in your app.
     '''
     
     result = QGestureRecognizer.Ignore  # default result
-    if event.type() == QEvent.MouseButtonPress:
+    if event.type() == QEvent.MouseButtonPress and event.button() == Qt.MiddleButton:
       self.isRecognizing = True
       self.startPos = event.pos()   # copy ?
       result = QGestureRecognizer.MayBeGesture
@@ -43,7 +49,9 @@ class PinchFromMouseRecognizer(QGestureRecognizer):
                       )
     print("Recognize result {}".format(eventDumper.gestureRecognizerResultFlagMap[result]))
     
-    # TODO or with QGestureRecognizer::ConsumeEventHint ?
+    # Consume input event, so it doesn't propagate to other event handlers
+    # result = result | QGestureRecognizer.ConsumeEventHint
+    
     return result # 
   
   
@@ -63,7 +71,7 @@ class PinchFromMouseRecognizer(QGestureRecognizer):
     '''
     Reimplement
     '''
-    print("reset")
+    print("Gesture reset")
     self.isRecognizing = False
     super().reset(gesture)
 

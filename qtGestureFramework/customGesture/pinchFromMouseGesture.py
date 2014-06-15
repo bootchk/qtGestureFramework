@@ -20,6 +20,7 @@ class PinchFromMouseGesture(Pinchable, QGesture):
   '''
   def __init__(self, parent):
     print("init PinchFromMouseGesture", parent)
+    Pinchable.initialize(self)
     super().__init__(parent)
 
 

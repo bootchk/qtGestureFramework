@@ -11,7 +11,7 @@ Useful for learning, experimentation, testing when you don't actually have a tra
 Includes
 ========
 
-The main class GestureAble, a mixin for QGraphicsView that hides the details of subscribing to gestures and handling gesture events.
+The main class GestureAble, a mixin for QGraphicsView that hides the details of subscribing to gestures and handling gesture events.  A class PinchGesturable that defines an app's handlers for state changes of pinch gestures.
 
 A custom gesture and recognizer simulating a two-finger pinch from the mouse.
 The pinch gesture is important to recognize since many laptop trackpads recognize it.
