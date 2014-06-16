@@ -2,6 +2,8 @@
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QGestureRecognizer
 
+from qtGestureFramework.gestureAble import GestureAble
+
 
 class EventDumper(object):
   '''
@@ -39,7 +41,7 @@ class EventDumper(object):
     # General for any event, but brief.
     print(receiverName, "event", self.eventTypeMap[event.type()])
     
-    if event.type() in (QEvent.Gesture, ):
+    if GestureAble.isEventGestureRelated(event):
         self.dumpGestureEvent(event)
         
   
@@ -47,8 +49,10 @@ class EventDumper(object):
     '''
     Special for QGestureEvent, detailed.
     '''
-    assert event.type() == QEvent.Gesture
+    assert GestureAble.isEventGestureRelated(event)
     print('Gesture event {}'.format(event.isAccepted()))
+    if event.type() == QEvent.GestureOverride:
+      print("Gesture is OVERRIDE")
     activeGestures = event.activeGestures()
     if len(activeGestures) > 0:
       for gesture in activeGestures:

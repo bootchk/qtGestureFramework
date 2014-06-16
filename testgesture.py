@@ -19,7 +19,7 @@ from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromM
 class DiagramScene(QGraphicsScene):
   def __init__(self, parent):
     QGraphicsScene.__init__(self, parent)
-    text = QGraphicsTextItem("Simulate pinch with mouse button pressed")
+    text = QGraphicsTextItem("Simulate pinch with middle mouse button pressed")
     #text.setTextInteractionFlags(Qt.TextEditorInteraction)
     self.addItem(text)
   
@@ -57,8 +57,12 @@ class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
   def event(self, event):
     eventDumper.dump(event, "View")
     
-    self.dispatchGestureEventByState(event)
-    
+    if GestureAble.isEventGestureRelated(event):
+      self.dispatchGestureEventByState(event)
+      # dispatchGestureEventByState does not ignore events, only individual gestures inside the event
+      # if this is a gesture event, it is still accepted.
+      # TODO will it still propagate to parent widgets?
+      
     return super().event(event)
   
   

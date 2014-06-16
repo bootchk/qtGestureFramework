@@ -47,7 +47,10 @@ class PinchFromMouseRecognizer(QGestureRecognizer):
                       QGestureRecognizer.CancelGesture,
                       QGestureRecognizer.TriggerGesture,
                       )
-    print("Recognize result {}".format(eventDumper.gestureRecognizerResultFlagMap[result]))
+    
+    # print results except ignore
+    if result != QGestureRecognizer.Ignore:
+      print("pinchFromMouseRecognizer result {}".format(eventDumper.gestureRecognizerResultFlagMap[result]))
     
     # Consume input event, so it doesn't propagate to other event handlers
     # result = result | QGestureRecognizer.ConsumeEventHint

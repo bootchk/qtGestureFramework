@@ -18,6 +18,7 @@ class PinchGestureAdaptor(object):
     '''
     Vector that center of gesture moved since previous GestureEvent.
     '''
+    # TODO robustness: check that we received some update i.e. is a continuous gesture.
     result = gesture.centerPoint() - gesture.lastCenterPoint()
     # subtracting two points yields a vector
       
