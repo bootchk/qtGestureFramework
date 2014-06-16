@@ -133,6 +133,15 @@ class GestureAble(object):
     '''
     assert GestureAble.isEventGestureRelated(event)
     
+    '''
+    Temporary hack.
+    MacOS is raising attribute error on QEvent of type GestureOverride
+    '''
+    if event.type() == QEvent.GestureOverride:
+      print("Accepting gesture override event.")
+      event.accept()
+      return
+    
     activeGestures = event.activeGestures()
     for gesture in activeGestures:
       self._dispatchGestureByState(event, gesture)

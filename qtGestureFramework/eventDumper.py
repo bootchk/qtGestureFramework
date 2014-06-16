@@ -42,10 +42,10 @@ class EventDumper(object):
     print(receiverName, "event", self.eventTypeMap[event.type()])
     
     if GestureAble.isEventGestureRelated(event):
-        self.dumpGestureEvent(event)
+        self.dumpGestureRelatedEvent(event)
         
   
-  def dumpGestureEvent(self, event):
+  def dumpGestureRelatedEvent(self, event):
     '''
     Special for QGestureEvent, detailed.
     '''
@@ -53,6 +53,16 @@ class EventDumper(object):
     print('Gesture event accepted? {}'.format(event.isAccepted()))
     if event.type() == QEvent.GestureOverride:
       print("Gesture is OVERRIDE")
+    try:
+      self._dumpGestureEvent(event)
+    except:
+      print("Failed to dump event {}".format(dir(event)))
+    
+      
+  def _dumpGestureEvent(self, event):
+    '''
+    Separate method because OSX raises AttributeError on event.activeGestures ????
+    '''
     activeGestures = event.activeGestures()
     if len(activeGestures) > 0:
       for gesture in activeGestures:
@@ -69,7 +79,6 @@ class EventDumper(object):
       for gesture in canceledGestures:
         print("   Canceled gesture {} {}".format(self.gestureTypeMap[gesture.gestureType()],
                                       self.gestureStateMap[gesture.state()]))
-      
 
 #global
 eventDumper = EventDumper()
