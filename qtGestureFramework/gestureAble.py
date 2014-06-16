@@ -135,36 +135,42 @@ class GestureAble(object):
     
     activeGestures = event.activeGestures()
     for gesture in activeGestures:
-      self._dispatchGestureByState(gesture)
+      self._dispatchGestureByState(event, gesture)
 
     canceledGestures = event.canceledGestures()
     for gesture in canceledGestures:
-      self._dispatchGestureByState(gesture)
+      self._dispatchGestureByState(event, gesture)
       print('Cancel gesture')
       
     '''
     Handlers accept individual gestures inside event, and not the event itself.
-    But an event isAccepted() by default.
-    
     Handlers may ignore individual gestures inside gesture events (gestures that they are not subscribed)
     but they do not ignore the gesture event itself.
+    
+    It is not true stmt that (subtype is Gesture => accepted) and (subtype is GestureOverride => ignored)
+    # assert (not event.isAccepted() or event.type() == QEvent.Gesture) and (event.isAccepted() or event.type() == QEvent.GestureOverride)
+    
+    I am not sure what Qt does to gestureEvent.accepted when its gestures are accepted.
     '''
-    assert event.isAccepted()
   
   
-  def _dispatchGestureByState(self, gesture):
+  def _dispatchGestureByState(self, event, gesture):
     '''
     This understands our our internal dictionary of handlers for states.
     
     !!! This does NOT return a value indicating acceptance of any individual gesture.
     Handlers may (and should) accept or ignore individual gesture in particular life-states,
-    but that is an acceptance-state of the individual gesture, and not passed here.
+    but that is an acceptance-state of the individual gesture, and not returned here.
+    
+    However, a quirk of Qt is that a QGesture has no method setAccepted.
+    Only a QGestureEvent.accept(QGesture) exists to accept and individual gesture,
+    I suppose because the event wants involved so it can cache state of gestures?
     '''
     handlerSet = GestureAble.subscribedGestures[gesture.gestureType()]
     handler = handlerSet[gesture.state()]
     if handler is not None:
       # call handler
-      handler(gesture)
+      handlerAccepted = handler(gesture)
     else:
       '''
       App programmer error.
@@ -175,6 +181,11 @@ class GestureAble(object):
       print('No handler for gesture type {} in state {}'.format(gesture.gestureType(), gesture.state()))
       # TODO should we ignore the gesture so that this widget does not get it again?
       # Especially if it is in the GestureStart life-state?
+      handlerAccepted = False
+      
+    # Tell event to put acceptance in gesture
+    if handlerAccepted:
+      event.setAccepted(gesture, True)
       
     """
       if gesture.state() == Qt.GestureStarted:

@@ -13,17 +13,20 @@ class PinchGestureAble(object):
   
   Change this to suit your application.
   Typically, a pinch changes viewing transform, crudely demonstrated below.
+  
+  Here we accept all state changes.
   '''
   
   def handlePinchStart(self, gesture):
     print('Start pinch')
+    return True #accepted
     
   
   def handlePinchUpdate(self, gesture):
     print('Update pinch')
     
     '''
-    For demonstration, change viewing transform.
+    Demo: change view transform.
     '''
     scaleRatio = PinchGestureAdaptor.deltaScaleFactor(gesture)
     assert isinstance(self, QGraphicsView)
@@ -33,9 +36,15 @@ class PinchGestureAble(object):
     center = PinchGestureAdaptor.deltaCenterPoint(gesture)
     self.translate(center.x(), center.y())
     
+    return True #accepted
     
   def handlePinchFinish(self, gesture):
     print('Finish pinch')
+    return True #accepted
   
   def handlePinchCancel(self, gesture):
     print('Cancel pinch')
+    # Demo: restore view transform
+    # TODO
+    
+    return True #accepted

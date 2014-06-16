@@ -50,7 +50,7 @@ class EventDumper(object):
     Special for QGestureEvent, detailed.
     '''
     assert GestureAble.isEventGestureRelated(event)
-    print('Gesture event {}'.format(event.isAccepted()))
+    print('Gesture event accepted? {}'.format(event.isAccepted()))
     if event.type() == QEvent.GestureOverride:
       print("Gesture is OVERRIDE")
     activeGestures = event.activeGestures()

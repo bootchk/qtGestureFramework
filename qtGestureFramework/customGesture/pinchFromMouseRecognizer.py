@@ -143,5 +143,6 @@ class PinchFromMouseRecognizer(QGestureRecognizer):
     '''
     pos2 = self.startPos
     result = abs(pos1.x() - pos2.x()) + abs(pos1.y() - pos2.y())
-    assert result > 0
+    assert result >= 0
     return result
+  
