@@ -19,6 +19,7 @@ class PinchGestureAble(object):
   
   def handlePinchStart(self, gesture):
     print('Start pinch')
+    PinchGestureAdaptor.resetHotSpotBy(gesture)
     return True #accepted
     
   

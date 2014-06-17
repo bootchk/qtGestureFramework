@@ -63,13 +63,15 @@ class Pinchable(object):
   centerPoint() above is also the current center point (as well as the total center point)
   
   Omitted:
-  -scaleFactor()
   -rotationAngle()
   
   These are wierd in QPinchGesture API.
   They usually are the same as total,
-  but they allow for stages of the gesture, i.e. user lifting a finger during the physical gesture.
+  but according to the documentation they allow for stages of the gesture, i.e. user lifting a finger during the physical gesture
+  (On some platforms, e.g. Mac does not allow user to lift finger during rotation.)
   '''
+  def scaleFactor(self):
+    return self._totalScaleFactor
   
   
   '''
