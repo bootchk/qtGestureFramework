@@ -29,6 +29,16 @@ class PinchGestureAdaptor(object):
   - bugs on Mac platform (see qmacgesturerecognizer.cpp in Qt source)
   '''
   
+  '''
+  !!! Except that this doesn't entirely work.
+  On OSX with Qt, a QPinchGesture never changes its hotspot or centerpoint,
+  i.e. it is ONLY a pinch (no scrolling or panning component.)
+  On OSX, a two-finger scrolling motion (without any pinch component)
+  manifests as scroll wheelEvent and a QPinchGesture in this sequence:
+  QWheelEvent,..., QWheelEvent, QGestureEvent(having QPinchGesture.state() == started), QGestureEvent(having QPinchGesture.state() == finished)
+  That is, the app gets a late indication the gesture started, and by then it is already finished.
+  '''
+  
   _lastHotSpot = None
   
   

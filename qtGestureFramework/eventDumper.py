@@ -56,7 +56,8 @@ class EventDumper(object):
     try:
       self._dumpGestureEvent(event)
     except:
-      print("Failed to dump event {}".format(dir(event)))
+      print("Failed to dump event") # .format(dir(event)))
+      # GestureOverride events are missing gestures() method, etc.
     
       
   def _dumpGestureEvent(self, event):
