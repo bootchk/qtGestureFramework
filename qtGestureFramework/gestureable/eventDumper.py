@@ -2,7 +2,7 @@
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QGestureRecognizer
 
-from qtGestureFramework.gestureAble import GestureAble
+from qtGestureFramework.gestureable.gestureAble import GestureAble
 
 
 class EventDumper(object):

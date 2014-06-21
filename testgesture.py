@@ -9,11 +9,13 @@ import sys
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphicsTextItem, QGraphicsView
 
-from qtGestureFramework.gestureAble import GestureAble
-from qtGestureFramework.pinchGestureAble import PinchGestureAble
-from qtGestureFramework.eventDumper import eventDumper  # singleton
+from qtGestureFramework.gestureable.gestureAble import GestureAble
+from qtGestureFramework.gestureable.eventDumper import eventDumper  # singleton
+from qtGestureFramework.gestureable.gestureManager import gestureMgr  # singleton
+
 from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromMouseRecognizer
 
+from demoApp.pinchGestureAble import PinchGestureAble
 
 
 class DiagramScene(QGraphicsScene):
@@ -63,6 +65,9 @@ class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
       # if this is a gesture event, it is still accepted.
       # TODO will it still propagate to parent widgets?
       
+    # watch for start of a PinchGesture
+    gestureMgr.monitorEventForGesture(event)
+    
     return super().event(event)
   
   

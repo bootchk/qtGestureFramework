@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QGraphicsView # demo
 
 from qtGestureFramework.pinchGestureAdaptor import PinchGestureAdaptor
-
+from qtGestureFramework.gestureable.gestureManager import gestureMgr  # singleton
 
 class PinchGestureAble(object):
   '''
@@ -20,6 +20,7 @@ class PinchGestureAble(object):
   def handlePinchStart(self, gesture):
     print('Start pinch')
     PinchGestureAdaptor.resetHotSpotBy(gesture)
+    gestureMgr.setGestureActive()
     return True #accepted
     
   
@@ -41,10 +42,12 @@ class PinchGestureAble(object):
     
   def handlePinchFinish(self, gesture):
     print('Finish pinch')
+    gestureMgr.setGestureCanceledOrFinished()
     return True #accepted
   
   def handlePinchCancel(self, gesture):
     print('Cancel pinch')
+    gestureMgr.setGestureCanceledOrFinished()
     # Demo: restore view transform
     # TODO
     

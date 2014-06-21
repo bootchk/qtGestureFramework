@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QGestureRecognizer
 
 from qtGestureFramework.customGesture.pinchFromMouseGesture import PinchFromMouseGesture
 
-from qtGestureFramework.eventDumper import eventDumper
+from qtGestureFramework.gestureable.eventDumper import eventDumper
 
 
 class PinchFromMouseRecognizer(QGestureRecognizer):
