@@ -9,8 +9,8 @@ setup(name='qtGestureFramework',
       author_email='bootch@nc.rr.com',
       url='https://github.com/bootchk/qtGestureFramework',
       packages=['qtGestureFramework',
-                'qtGestureFramework.gestureable'
+                'qtGestureFramework.gestureable',
                 'qtGestureFramework.customGesture',
-                'qtGestureFramework.demoApp'
+                'qtGestureFramework.demoApp',
                 ],
      )
