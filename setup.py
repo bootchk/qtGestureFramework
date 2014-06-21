@@ -11,6 +11,6 @@ setup(name='qtGestureFramework',
       packages=['qtGestureFramework',
                 'qtGestureFramework.gestureable',
                 'qtGestureFramework.customGesture',
-                'qtGestureFramework.demoApp',
+                'demoApp',
                 ],
      )
