@@ -38,12 +38,21 @@ class EventDumper(object):
   def dump(self, event, receiverName):
     '''
     '''
-    # General for any event, but brief.
-    print(receiverName, "event", self.eventTypeMap[event.type()])
-    
-    if GestureAble.isEventGestureRelated(event):
-        self.dumpGestureRelatedEvent(event)
-        
+    try:
+      # General for any event, but brief.
+      print(receiverName, "event", self.eventTypeMap[event.type()])
+      
+      if GestureAble.isEventGestureRelated(event):
+          self.dumpGestureRelatedEvent(event)
+    except:
+      '''
+      Exceptions:
+      - KeyError on enum maps (why?  but key 178 is missing on OSX)
+      - other: GestureOverride events are missing gestures() method, etc. 
+      ''' 
+      print("Failed to dump event") # .format(dir(event)))
+      # Since this is only for debugging, do not reraise
+      
   
   def dumpGestureRelatedEvent(self, event):
     '''
@@ -53,11 +62,9 @@ class EventDumper(object):
     print('Gesture event accepted? {}'.format(event.isAccepted()))
     if event.type() == QEvent.GestureOverride:
       print("Gesture is OVERRIDE")
-    try:
+      # Can't call _dumpGestureEvent(), it raises exception since event has no activeGestures() method ?
+    else:
       self._dumpGestureEvent(event)
-    except:
-      print("Failed to dump event") # .format(dir(event)))
-      # GestureOverride events are missing gestures() method, etc.
     
       
   def _dumpGestureEvent(self, event):

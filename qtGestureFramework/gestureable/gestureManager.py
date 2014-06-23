@@ -1,5 +1,5 @@
 
-from PyQt5.QtCore import QEvent
+from PyQt5.QtCore import Qt, QEvent
 
 
 class GestureManager(object):
@@ -27,15 +27,26 @@ class GestureManager(object):
     
     On OSX, a physical 2-finger pinch gesture also generates QWheelEvent (the scrolling component of the physical gesture)
     but often before a QGestureEvent having a QPinchGesture in the started state.
-    But a TouchBegin event reliably indicates that a pinch gesture was started (with two fingers down.)
+    
+    A TouchBegin event reliably comes when a pinch gesture was started (with two fingers down.)
+    But it also comes without a gesture !?! So it is not reliable.
     
     This doesn't monitor QGestureEvent.
     Your app should be handling those, and calling setGestureActive().
     
     This may be fragile.
     '''
+    """
+    OLD, not reliable.
+    
     # class is QTouchEvent, type is QEvent.TouchBegin
     if event.type() == QEvent.TouchBegin:
+      print("setGestureActive")
+      self.setGestureActive()
+    """
+    # class is QWheelEvent, type is Wheel
+    if event.type() == QEvent.Wheel and event.phase() == Qt.ScrollBegin :
+      # assert this is a gesture.  A QWheelEvent from a mouse does not have phases, even on OSX
       print("setGestureActive")
       self.setGestureActive()
     
