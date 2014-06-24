@@ -202,6 +202,8 @@ class GestureAble(object):
     By default, gestures are accepted, so setAccepted( , True) is superfluous, but do it the simple way.
     '''
     event.setAccepted(gesture, handlerAccepted)
+    if not handlerAccepted:
+      print("handler ignored gesture")
       
     """
       if gesture.state() == Qt.GestureStarted:
