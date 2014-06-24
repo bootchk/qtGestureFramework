@@ -9,6 +9,10 @@ from qtGestureFramework.gestureable.gestureManager import gestureMgr
 class GestureAble(object):
   '''
   Mixin class for QGraphicsView
+  
+  Subscribing registers handlers for individual gestures (not QGestureEvents).
+  !!! Handlers return False to ignore a gesture,
+  especially when the gesture is in the started state.
   '''
   subscribedGestures = {}
   
@@ -214,9 +218,14 @@ class GestureAble(object):
       # Especially if it is in the GestureStart life-state?
       handlerAccepted = False
       
-    # Tell event to put acceptance in gesture
-    if handlerAccepted:
-      event.setAccepted(gesture, True)
+    '''
+    Tell event to accept or ignore gesture.
+    Event may be accepted, but gestures inside ignored.
+    By default, gestures are accepted, so setAccepted( , True) is superfluous, but do it the simple way.
+    '''
+    event.setAccepted(gesture, handlerAccepted)
+    if not handlerAccepted:
+      print("handler ignored gesture")
       
     """
       if gesture.state() == Qt.GestureStarted:
