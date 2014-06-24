@@ -3,6 +3,8 @@
 from PyQt5.QtCore import Qt, QEvent
 from PyQt5.QtWidgets import QGestureRecognizer
 
+from qtGestureFramework.gestureable.gestureManager import gestureMgr
+
 
 class GestureAble(object):
   '''
@@ -29,42 +31,52 @@ class GestureAble(object):
     return gestureType in (Qt.TapGesture, Qt.TapAndHoldGesture, Qt.PanGesture, Qt.PinchGesture, Qt.SwipeGesture)
   
 
-  def subscribeBuiltinGesture(self, gestureType,
+  def subscribeBuiltinGesture(self, 
+                              subscribingWidget,
+                              gestureType,
                               startHandler,
                               updateHandler,
                               finishHandler,
                               cancelHandler):
     '''
-    Subscribe to gesture type built into Qt (valid across platforms, but not necessarily implemented on all platforms.)
+    Subscribe the subscribingWidget to gesture type built into Qt (valid across platforms, but not necessarily implemented on all platforms.)
+    
+    subscribingWidget may be self, or a child (i.e. the viewport of a QGraphicsView.)
     '''
     assert GestureAble.isGestureTypeBuiltin(gestureType)
     
     # Qt built-in gestures use touch events, must enable them on widget
     # Qt built-in widgets DO NOT use mouse events
-    self._subscribeTouchEvents()
+    self._subscribeTouchEvents(subscribingWidget)
     
-    self.grabGesture(gestureType)  # method of QWidget or QGraphicsObject
+    subscribingWidget.grabGesture(gestureType)  # method of QWidget or QGraphicsObject
     
     self._registerGestureSubscription(gestureType, startHandler, updateHandler, finishHandler, cancelHandler)
     # assert this widget will receive touch events and gestureType is grabbed
 
   
-  def subscribeCustomGesture(self, recognizerFactory,
-                              startHandler=None,
-                              updateHandler=None,
-                              finishHandler=None,
-                              cancelHandler=None):
+  def subscribeCustomGesture(self, 
+                             subscribingWidget,
+                             recognizerFactory,
+                             startHandler=None,
+                             updateHandler=None,
+                             finishHandler=None,
+                             cancelHandler=None):
     
     # Assume Widget subscribes to events that are input to custom recognizer
-    gestureTypeID = self._grabCustomGesture(recognizerFactory)
+    gestureTypeID = self._grabCustomGesture(subscribingWidget, recognizerFactory)
     self._registerGestureSubscription(gestureTypeID, startHandler, updateHandler, finishHandler, cancelHandler)
     
     
-  def _registerGestureSubscription(self, gestureType,
+  def _registerGestureSubscription(self, 
+                              gestureType,
                               startHandler,
                               updateHandler,
                               finishHandler,
                               cancelHandler):
+    '''
+    Remember handlers by gestureStates for this subscription.
+    '''
     # Create dictionary {gesture state: handler}
     gestureHandlerDictionary = {Qt.GestureStarted : startHandler,
                          Qt.GestureUpdated : updateHandler,
@@ -84,18 +96,18 @@ class GestureAble(object):
     QGestureRecognizer.unregisterRecognizer(257)
     
   
-  def _subscribeTouchEvents(self):
+  def _subscribeTouchEvents(self, subscribingWidget):
     '''
     Boilerplate to subscribe to touch events, needed for built-in Qt gestures.
     '''
     # Tell Qt to deliver touch events instead of default, which is translating to mouse events (friendly)
     self.setAttribute(Qt.WA_AcceptTouchEvents)
     
-    # !!! Obscure: set the attribute on viewport()
-    self.viewport().setAttribute(Qt.WA_AcceptTouchEvents)
+    # !!! Obscure: set the attribute on child receiving events, e.g. viewport()
+    subscribingWidget.setAttribute(Qt.WA_AcceptTouchEvents)
     
     
-  def _grabCustomGesture(self, recognizerFactory):
+  def _grabCustomGesture(self, subscribingWidget, recognizerFactory):
     '''
     Create instance of gesture recognizer,
     register it,
@@ -115,7 +127,7 @@ class GestureAble(object):
     #print("gesture type id is ", gestureTypeID)
     
     print("{} grabbing gesture type {}".format(self, gestureTypeID))
-    self.grabGesture(gestureTypeID)
+    subscribingWidget.grabGesture(gestureTypeID)
     
     return gestureTypeID
     
@@ -123,8 +135,18 @@ class GestureAble(object):
     !!! Note that we don't keep a reference to recognizer, since now Qt owns it ???
     '''
 
-
-  def dispatchGestureEventByState(self, event):
+  def monitorGestureEvent(self, event):
+    if GestureAble.isEventGestureRelated(event):
+      self._dispatchGestureEventByState(event)
+      # dispatchGestureEventByState does not ignore events, only individual gestures inside the event
+      # if this is a gesture event, it is still accepted.
+      # TODO will it still propagate to parent widgets?
+      
+    # watch for start of a PinchGesture in the form of a QWheelEvent of phase BeginScroll
+    gestureMgr.monitorEventForGesture(event)
+    
+    
+  def _dispatchGestureEventByState(self, event):
     '''
     This understands how to get gestures and their state out of a QGestureEvent
     

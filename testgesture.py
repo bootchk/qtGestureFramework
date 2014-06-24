@@ -43,43 +43,40 @@ class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
     since touch events not handled are translated by Qt into mouse events,
     and you might have multiple pinch gestures active,
     calling the same handlers.
+    
+    !!! Subscribe the viewport, and handle gestureEvents in viewportEvent(),
+    but self has methods for handling gestures.
     '''
-    self.subscribeBuiltinGesture(Qt.PinchGesture, startHandler=self.handlePinchStart,
+    self.subscribeBuiltinGesture(subscribingWidget=self.viewport(),
+                                gestureType=Qt.PinchGesture, 
+                                startHandler=self.handlePinchStart,
                                 updateHandler=self.handlePinchUpdate,
                                 finishHandler=self.handlePinchFinish,
                                 cancelHandler=self.handlePinchCancel)
     
-    self.subscribeCustomGesture(PinchFromMouseRecognizer,
+    self.subscribeCustomGesture(subscribingWidget=self.viewport(),
+                                recognizerFactory=PinchFromMouseRecognizer,
                                 startHandler=self.handlePinchStart,
                                 updateHandler=self.handlePinchUpdate,
                                 finishHandler=self.handlePinchFinish,
                                 cancelHandler=self.handlePinchCancel)
 
-  
+    
+  """
   def event(self, event):
     eventDumper.dump(event, "View")
-    
-    if GestureAble.isEventGestureRelated(event):
-      self.dispatchGestureEventByState(event)
-      # dispatchGestureEventByState does not ignore events, only individual gestures inside the event
-      # if this is a gesture event, it is still accepted.
-      # TODO will it still propagate to parent widgets?
-      
-    # watch for start of a PinchGesture
-    gestureMgr.monitorEventForGesture(event)
-    
+    # self.monitorGestureEvent(event)
     return super().event(event)
-  
+  """
   
   def viewportEvent(self, event):
     '''
-    viewport is area inside scrollbars?
+    viewport is area inside scrollbars.
+    It subscribes to and receives QGestureEvents.
     '''
     eventDumper.dump(event, "Viewport")
+    self.monitorGestureEvent(event) # method of Gestureable
     return super().viewportEvent(event)
-  
-  
-    
 
 
 class MainWindow(QMainWindow):

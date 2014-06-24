@@ -31,6 +31,8 @@ Apple Desktop HIG suggests that your app handle it: users expect it to work in m
 
 Gestures from Qt on OSX are a little strange: a pinch gesture generates wheelEvents out of order, for the scrolling component of the gesture.
 
+A QGraphicsView doesn't subscribe to gestures and receive gestures, instead its viewport.  Otherwise, gestures are in a child of the subscriber, and you need to mess with GestureOverride event?
+
 
 
 
