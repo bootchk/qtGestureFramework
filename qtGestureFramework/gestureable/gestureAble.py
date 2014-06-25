@@ -140,14 +140,26 @@ class GestureAble(object):
     '''
 
   def monitorGestureEvent(self, event):
+    '''
+    If event has any signficance to gestures, handle it.
+    
+    - events whose type is well known to be gesture related
+    - events that ARE subtly gesture related, but you wouldn't know it from their type.
+    '''
     if GestureAble.isEventGestureRelated(event):
       self._dispatchGestureEventByState(event)
       # dispatchGestureEventByState does not ignore events, only individual gestures inside the event
       # if this is a gesture event, it is still accepted.
       # TODO will it still propagate to parent widgets?
       
-    # watch for start of a PinchGesture in the form of a QWheelEvent of phase BeginScroll
+    
+    #Watch for start of a PinchGesture in the form of a QWheelEvent of phase BeginScroll
     gestureMgr.monitorEventForGesture(event)
+    
+    '''
+    Assert that if event is QGestureEvent, it is accepted unless
+    a gesture inside is in the start state and a handler ignored the gesture (rejected future events for the gesture.)
+    '''
     
     
   def _dispatchGestureEventByState(self, event):
@@ -161,16 +173,29 @@ class GestureAble(object):
     
     '''
     Temporary hack.
-    MacOS is raising attribute error on QEvent of type GestureOverride
+    MacOS is raising attribute error on QEvent of type GestureOverride.
+    I found that GestureOverride comes e.g. when you subscribe gestures on a view instead of its viewport.
+    That is, when gestures are made in a child of a subscriber.
+    If you want that, you should properly design how to handle GestureOverride.
+    This might not be a correct design.
     '''
     if event.type() == QEvent.GestureOverride:
       print("Accepting gesture override event.")
       event.accept()
       return
     
+    assert event.type() == QEvent.Gesture
     activeGestures = event.activeGestures()
     for gesture in activeGestures:
       self._dispatchGestureByState(event, gesture)
+      if self._gestureIsIgnoredStart(gesture):
+        '''
+        To properly ignore a gesture in start state, (so your app does not receive future events for gesture)
+        the owning gesture eventy must also be ignored.
+        Other gestures in the gestureEvent may be starting and not ignored.
+        '''
+        print("Ignoring gestureEvent having ignored gesture in start state")
+        event.ignore()
 
     canceledGestures = event.canceledGestures()
     for gesture in canceledGestures:
@@ -185,8 +210,15 @@ class GestureAble(object):
     It is not true stmt that (subtype is Gesture => accepted) and (subtype is GestureOverride => ignored)
     # assert (not event.isAccepted() or event.type() == QEvent.Gesture) and (event.isAccepted() or event.type() == QEvent.GestureOverride)
     
-    I am not sure what Qt does to gestureEvent.accepted when its gestures are accepted.
+    I don't think Qt alters gestureEvent.accepted when its gestures are accepted.
     '''
+  
+  def _gestureIsIgnoredStart(self, gesture):
+    '''
+    Return True if gesture is in started state and was ignored.
+    '''
+    return gesture.state() == Qt.GestureStarted and not gesture.isAccepted()
+
   
   
   def _dispatchGestureByState(self, event, gesture):
@@ -220,8 +252,13 @@ class GestureAble(object):
       
     '''
     Tell event to accept or ignore gesture.
-    Event may be accepted, but gestures inside ignored.
+    That is, a handler only returns an acceptance value, and doesn't know how to set it on the gesture.
+    This method knows how to set acceptance on a gesture.
+    
     By default, gestures are accepted, so setAccepted( , True) is superfluous, but do it the simple way.
+    
+    !!! This is NOT the acceptance of the QGestureEvent.
+    See the caller, _dispatchGestureEventByState.
     '''
     event.setAccepted(gesture, handlerAccepted)
     if not handlerAccepted:
