@@ -188,10 +188,10 @@ class GestureAble(object):
     activeGestures = event.activeGestures()
     for gesture in activeGestures:
       self._dispatchGestureByState(event, gesture)
-      if self._gestureIsIgnoredStart(gesture):
-        '''
-        To properly ignore a gesture in start state, (so your app does not receive future events for gesture)
-        the owning gesture eventy must also be ignored.
+      if self._gestureIsIgnoredStart(event, gesture):
+        ''' 
+        To arrange that an app does not receive future events for gesture,
+        the gesture in the start state must be ignored AND the owning gesture event must also be ignored.
         Other gestures in the gestureEvent may be starting and not ignored.
         '''
         print("Ignoring gestureEvent having ignored gesture in start state")
@@ -213,11 +213,11 @@ class GestureAble(object):
     I don't think Qt alters gestureEvent.accepted when its gestures are accepted.
     '''
   
-  def _gestureIsIgnoredStart(self, gesture):
+  def _gestureIsIgnoredStart(self, event, gesture):
     '''
     Return True if gesture is in started state and was ignored.
     '''
-    return gesture.state() == Qt.GestureStarted and not gesture.isAccepted()
+    return gesture.state() == Qt.GestureStarted and not event.isAccepted(gesture)
 
   
   
