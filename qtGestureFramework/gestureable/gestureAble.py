@@ -193,6 +193,8 @@ class GestureAble(object):
         To arrange that an app does not receive future events for gesture,
         the gesture in the start state must be ignored AND the owning gesture event must also be ignored.
         Other gestures in the gestureEvent may be starting and not ignored.
+        
+        !!! But this doesn't seem to work as advertised: we continue to get gesture in update state
         '''
         print("Ignoring gestureEvent having ignored gesture in start state")
         event.ignore()

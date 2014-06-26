@@ -2,6 +2,12 @@
 
 '''
 Test qtGestureFramework
+
+Demo operation of:
+- Qt's gestures
+- qtGestureFramework that wrap's Qt gestures.
+
+See README about what quirks are demonstrated.
 '''
 
 import sys
@@ -11,7 +17,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QGraphicsScene, QGraphics
 
 from qtGestureFramework.gestureable.gestureAble import GestureAble
 from qtGestureFramework.gestureable.eventDumper import eventDumper  # singleton
-from qtGestureFramework.gestureable.gestureManager import gestureMgr  # singleton
+#from qtGestureFramework.gestureable.gestureManager import gestureMgr  # singleton
 
 from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromMouseRecognizer
 
@@ -21,9 +27,9 @@ from demoApp.pinchGestureAble import PinchGestureAble
 class DiagramScene(QGraphicsScene):
   def __init__(self, parent):
     QGraphicsScene.__init__(self, parent)
-    text = QGraphicsTextItem("Simulate pinch with middle mouse button pressed")
-    #text.setTextInteractionFlags(Qt.TextEditorInteraction)
+    text = QGraphicsTextItem("Simulate pinch with middle mouse button pressed\n press Ctl key to ignore gesture")
     self.addItem(text)
+
   
   """
   def event(self, event):
@@ -39,10 +45,12 @@ class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
     '''
     Here we subscribe to both the builtin pinch gesture and a custom pinch gesture simulated with mouse.
     If you don't have a touch device, you won't get touch events and thus not the built-in one.
+    
     If you do have a touch device, this might not work,
     since touch events not handled are translated by Qt into mouse events,
-    and you might have multiple pinch gestures active,
+    and you might have both a touch pinch gestures active and a simulated pinch gesture active
     calling the same handlers.
+    I haven't tested this aspect, possibly two finger touch doesn't generate any mouse events.
     
     !!! Subscribe the viewport, and handle gestureEvents in viewportEvent(),
     but self has methods for handling gestures.

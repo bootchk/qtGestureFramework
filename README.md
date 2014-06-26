@@ -29,9 +29,19 @@ Discussion
 The pinch gesture is important to recognize since many laptop trackpads recognize it.
 Apple Desktop HIG suggests that your app handle it: users expect it to work in most apps.
 
+
+Qt quirks that testgesture.py demonstrates
+==========================================
+
 Gestures from Qt on OSX are a little strange: a pinch gesture generates wheelEvents out of order, for the scrolling component of the gesture.
 
-A QGraphicsView doesn't subscribe to gestures and receive gestures, instead its viewport.  Otherwise, gestures are in a child of the subscriber, and you need to mess with GestureOverride event?
+On OSX, a QPinchGesture never changes its center (scrolling component comes as QWheelEvents.)
+
+A QGraphicsView should not subscribe to gestures and receive gestures, instead its viewport should.  Otherwise, gestures are in a child of the subscriber, and you need to mess with GestureOverride event?
+
+Ignoring gesture in started state does not prevent future gesture events (despite what the documentation says.)
+
+
 
 
 
