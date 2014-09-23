@@ -166,8 +166,7 @@ class GestureAble(object):
     '''
     This understands how to get gestures and their state out of a QGestureEvent
     
-    Raises KeyError if get gestures not subscribed to.
-    How would Qt let that happen?
+    Logs warning if get gestures not subscribed to.  Why does Qt let that happen?
     '''
     assert GestureAble.isEventGestureRelated(event)
     
@@ -235,7 +234,15 @@ class GestureAble(object):
     Only a QGestureEvent.accept(QGesture) exists to accept and individual gesture,
     I suppose because the event wants involved so it can cache state of gestures?
     '''
-    handlerSet = GestureAble.subscribedGestures[gesture.gestureType()]
+    gestureType = gesture.gestureType()
+    try:
+      handlerSet = GestureAble.subscribedGestures[gestureType]
+    except KeyError:
+      # TODO syslog warning
+      print("Received unsubscribed gesture:", str(gestureType))
+              
+    # TODO should be an object instead of dict
+    # To enforce never keyError, no None handlers, etc.
     handler = handlerSet[gesture.state()]
     if handler is not None:
       # call handler

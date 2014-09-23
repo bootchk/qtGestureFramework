@@ -79,8 +79,13 @@ class PinchGestureAdaptor(object):
     On OSX, centerPoint (current, last) are never updated.
     On OSX centerPoint is set by Qt's qmacgesturerecognizer only at begin.
     And hotSpot is a screenPos().
+    
+    So here, we keep track of lastHotSpot as standin for absent lastCenterPoint.
     '''
-    result = gesture.hotSpot() - cls._lastHotSpot
+    if cls._lastHotSpot is None:
+      result = QPointF(0,0)
+    else:
+      result = gesture.hotSpot() - cls._lastHotSpot
     cls._lastHotSpot = gesture.hotSpot()
     # subtracting two points yields a vector
       
