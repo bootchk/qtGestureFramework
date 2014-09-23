@@ -240,6 +240,7 @@ class GestureAble(object):
     except KeyError:
       # TODO syslog warning
       print("Received unsubscribed gesture:", str(gestureType))
+      return
               
     # TODO should be an object instead of dict
     # To enforce never keyError, no None handlers, etc.
