@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QGraphicsView # demo
 
 from qtGestureFramework.pinchGestureAdaptor import PinchGestureAdaptor
 from qtGestureFramework.gestureable.gestureManager import gestureMgr  # singleton
+from qtGestureFramework.gestureHandler.gestureHandler import GestureHandler
 
 
 def isControlKeyDown():
@@ -11,7 +12,7 @@ def isControlKeyDown():
   return keyModifiers & Qt.ControlModifier
   
   
-class PinchGestureAble(object):
+class PinchGestureHandler(GestureHandler):
   '''
   Mixin methods for an app.
   
@@ -25,7 +26,12 @@ class PinchGestureAble(object):
   So we use GestureManager to keep our own state.
   '''
   
-  def handlePinchStart(self, gesture):
+  def __init__(self, view):
+    assert isinstance(view, QGraphicsView)
+    self.view = view
+    
+  
+  def start(self, gesture):
     print('Start pinch')
     ## PinchGestureAdaptor.resetHotSpotBy(gesture)
     # Allow Ctl key to reject gestures
@@ -36,7 +42,7 @@ class PinchGestureAble(object):
       return True #accepted
     
   
-  def handlePinchUpdate(self, gesture):
+  def update(self, gesture):
     print('Update pinch')
     # Only if we accepted gesture start earlier
     if gestureMgr.isGestureActive():
@@ -45,12 +51,12 @@ class PinchGestureAble(object):
     else:
       return False
     
-  def handlePinchFinish(self, gesture):
+  def finish(self, gesture):
     print('Finish pinch')
     gestureMgr.setGestureCanceledOrFinished()
     return True #accepted
   
-  def handlePinchCancel(self, gesture):
+  def cancel(self, gesture):
     print('Cancel pinch')
     gestureMgr.setGestureCanceledOrFinished()
     # Demo: restore view transform
@@ -63,9 +69,9 @@ class PinchGestureAble(object):
     Demo: change view transform.
     '''
     scaleRatio = PinchGestureAdaptor.deltaScaleFactor(gesture)
-    assert isinstance(self, QGraphicsView)
+    
     print("Scaling view", scaleRatio)
-    self.scale(scaleRatio, scaleRatio)
+    self.view.scale(scaleRatio, scaleRatio)
     
     center = PinchGestureAdaptor.deltaCenterPoint(gesture)
-    self.translate(center.x(), center.y())
+    self.view.translate(center.x(), center.y())

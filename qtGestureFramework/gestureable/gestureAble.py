@@ -38,10 +38,7 @@ class GestureAble(object):
   def subscribeBuiltinGesture(self, 
                               subscribingWidget,
                               gestureType,
-                              startHandler,
-                              updateHandler,
-                              finishHandler,
-                              cancelHandler):
+                              handler):
     '''
     Subscribe the subscribingWidget to gesture type built into Qt (valid across platforms, but not necessarily implemented on all platforms.)
     
@@ -55,37 +52,29 @@ class GestureAble(object):
     
     subscribingWidget.grabGesture(gestureType)  # method of QWidget or QGraphicsObject
     
-    self._registerGestureSubscription(gestureType, startHandler, updateHandler, finishHandler, cancelHandler)
+    self._registerGestureSubscription(gestureType, handler)
     # assert this widget will receive touch events and gestureType is grabbed
 
   
   def subscribeCustomGesture(self, 
                              subscribingWidget,
                              recognizerFactory,
-                             startHandler=None,
-                             updateHandler=None,
-                             finishHandler=None,
-                             cancelHandler=None):
+                             handler):
     
     # Assume Widget subscribes to events that are input to custom recognizer
     gestureTypeID = self._grabCustomGesture(subscribingWidget, recognizerFactory)
-    self._registerGestureSubscription(gestureTypeID, startHandler, updateHandler, finishHandler, cancelHandler)
+    self._registerGestureSubscription(gestureTypeID, handler)
     
     
-  def _registerGestureSubscription(self, 
-                              gestureType,
-                              startHandler,
-                              updateHandler,
-                              finishHandler,
-                              cancelHandler):
+  def _registerGestureSubscription(self, gestureType, handler):
     '''
     Remember handlers by gestureStates for this subscription.
     '''
     # Create dictionary {gesture state: handler}
-    gestureHandlerDictionary = {Qt.GestureStarted : startHandler,
-                         Qt.GestureUpdated : updateHandler,
-                         Qt.GestureFinished : finishHandler,
-                         Qt.GestureCanceled : cancelHandler }
+    gestureHandlerDictionary = {Qt.GestureStarted : handler.start,
+                         Qt.GestureUpdated : handler.update,
+                         Qt.GestureFinished : handler.finish,
+                         Qt.GestureCanceled : handler.cancel }
     
     GestureAble.subscribedGestures[gestureType] = gestureHandlerDictionary 
     

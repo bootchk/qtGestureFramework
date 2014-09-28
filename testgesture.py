@@ -21,7 +21,7 @@ from qtGestureFramework.gestureable.eventDumper import eventDumper  # singleton
 
 from qtGestureFramework.customGesture.pinchFromMouseRecognizer import PinchFromMouseRecognizer
 
-from demoApp.pinchGestureAble import PinchGestureAble
+from demoApp.pinchGestureAble import PinchGestureHandler
 
 
 class DiagramScene(QGraphicsScene):
@@ -38,7 +38,7 @@ class DiagramScene(QGraphicsScene):
   """
     
     
-class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
+class DiagramView(GestureAble, QGraphicsView):
   def __init__(self, scene, parent):
     super().__init__(scene, parent)
     
@@ -55,19 +55,15 @@ class DiagramView(GestureAble, PinchGestureAble, QGraphicsView):
     !!! Subscribe the viewport, and handle gestureEvents in viewportEvent(),
     but self has methods for handling gestures.
     '''
+    self.pinchGestureHandler = PinchGestureHandler(view=self)
+    
     self.subscribeBuiltinGesture(subscribingWidget=self.viewport(),
                                 gestureType=Qt.PinchGesture, 
-                                startHandler=self.handlePinchStart,
-                                updateHandler=self.handlePinchUpdate,
-                                finishHandler=self.handlePinchFinish,
-                                cancelHandler=self.handlePinchCancel)
+                                handler = self.pinchGestureHandler)
     
     self.subscribeCustomGesture(subscribingWidget=self.viewport(),
                                 recognizerFactory=PinchFromMouseRecognizer,
-                                startHandler=self.handlePinchStart,
-                                updateHandler=self.handlePinchUpdate,
-                                finishHandler=self.handlePinchFinish,
-                                cancelHandler=self.handlePinchCancel)
+                                handler = self.pinchGestureHandler)
 
     
   """

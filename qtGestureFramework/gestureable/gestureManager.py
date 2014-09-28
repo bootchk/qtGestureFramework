@@ -6,9 +6,13 @@ class GestureManager(object):
   '''
   Know when a gesture is active.
   
-  Glorified state.
+  Glorified state, for an app that only subscribes to one gesture!!!
+  (TODO make it count active gestures, when many can be active.)
   
   Especially fixes a quirk of Qt on OSX: determine when a scrolling gesture starts on OSX.
+  
+  !!! isGestureActive() == True does NOT mean the app has accepted the gesture.
+  It only means that as best we can tell, the user is gesturing.
   '''
   
   def __init__(self):
