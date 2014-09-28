@@ -11,7 +11,7 @@ class LoggingStartGestureHandler(GestureHandler):
   '''
   
   def start(self, gesture):
-    self._logGestureStateChange("Start", gesture)
+    self._logGestureStateChange(gesture, state="Start")
     return False
   
   '''

@@ -13,19 +13,19 @@ class LoggingGestureHandler(GestureHandler):
   '''
   
   def start(self, gesture):
-    self._logGestureStateChange("Start", gesture)
+    self._logGestureStateChange(gesture, state="Start")
     return True
   
   def update(self, gesture):
-    self._logGestureStateChange("Update", gesture)
+    self._logGestureStateChange(gesture, state="Update")
     return True
   
   def finish(self, gesture):
-    self._logGestureStateChange("End", gesture)
+    self._logGestureStateChange(gesture, state="End")
     return True
   
   def cancel(self, gesture):
-    self._logGestureStateChange("Cancel", gesture)
+    self._logGestureStateChange(gesture, state="Cancel")
     return True
   
   
