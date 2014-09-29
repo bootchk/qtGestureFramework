@@ -33,3 +33,7 @@ class GestureHandler(object):
   
   def cancel(self, gesture):
     return False
+
+
+  def _logGestureStateChange(self, gesture, state):
+    print(state, " gesture: ", gesture.gestureType())

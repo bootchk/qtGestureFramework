@@ -27,9 +27,4 @@ class LoggingGestureHandler(GestureHandler):
   def cancel(self, gesture):
     self._logGestureStateChange(gesture, state="Cancel")
     return True
-  
-  
-
-  def _logGestureStateChange(self, gesture, state):
-    print(state, " gesture: ", gesture.type())
     

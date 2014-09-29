@@ -15,9 +15,6 @@ class LoggingStartGestureHandler(GestureHandler):
     return False
   
   '''
-  Other methods inherited.
+  Other methods are inherited.
   '''
-
-  def _logGestureStateChange(self, gesture, state):
-    print(state, " gesture: ", gesture.type())
     
